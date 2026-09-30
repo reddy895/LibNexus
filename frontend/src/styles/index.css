@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FAF8F5;
+    color: #171717;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom Library Aesthetic Utilities */
+.bg-cream {
+  background-color: #FAF8F5;
+}
+
+.bg-charcoal {
+  background-color: #0F172A;
+}
+
+.bg-burgundy {
+  background-color: #9F2D2D;
+}
+
+.text-burgundy {
+  color: #9F2D2D;
+}
+
+.border-subtle {
+  border-color: #E2E8F0;
+}
+
+.card-hover {
+  transition: all 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+}
