@@ -10,7 +10,7 @@ const LibraryCard = ({ library, onSelectMap }) => {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full group">
-      
+
       {/* Top Image Box */}
       <div className="relative h-48 bg-slate-900 overflow-hidden">
         <img
@@ -19,7 +19,7 @@ const LibraryCard = ({ library, onSelectMap }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
-        
+
         {/* Status Overlay Badge */}
         <div className="absolute top-3 left-3 z-10">
           <span

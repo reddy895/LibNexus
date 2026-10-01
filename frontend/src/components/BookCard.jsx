@@ -9,7 +9,7 @@ const BookCard = ({ book }) => {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full group">
-      
+
       {/* Cover Box */}
       <div className="relative h-52 bg-slate-900 overflow-hidden flex items-center justify-center p-4">
         <img
