@@ -1,30 +1,14 @@
-const Seat = require('../models/Seat');
-const Library = require('../models/Library');
-
-// Recalculate library available seats
-const updateLibrarySeatStats = async (libraryId) => {
-  if (!libraryId) return;
-  const seats = await Seat.find({ library: libraryId });
-  const totalSeats = seats.length;
-  const availableSeats = seats.filter(s => s.status === 'available').length;
-  await Library.findByIdAndUpdate(libraryId, { totalSeats, availableSeats });
-};
+const dataService = require('../services/dataService');
 
 // @desc    Get seats for library
 // @route   GET /api/libraries/:libraryId/seats
 exports.getSeatsByLibrary = async (req, res, next) => {
   try {
     const { libraryId } = req.params;
-    const filter = { library: libraryId };
-
-    if (req.query.floor) {
-      filter.floor = parseInt(req.query.floor, 10);
-    }
-    if (req.query.status) {
-      filter.status = req.query.status.toLowerCase();
-    }
-
-    const seats = await Seat.find(filter).sort({ floor: 1, seatNumber: 1 });
+    const seats = await dataService.getSeatsByLibrary(libraryId, {
+      floor: req.query.floor,
+      status: req.query.status
+    });
 
     res.status(200).json({
       success: true,
@@ -41,7 +25,7 @@ exports.getSeatsByLibrary = async (req, res, next) => {
 exports.getAvailableSeatsByLibrary = async (req, res, next) => {
   try {
     const { libraryId } = req.params;
-    const seats = await Seat.find({ library: libraryId, status: 'available' }).sort({ floor: 1, seatNumber: 1 });
+    const seats = await dataService.getAvailableSeatsByLibrary(libraryId);
 
     res.status(200).json({
       success: true,
@@ -57,8 +41,7 @@ exports.getAvailableSeatsByLibrary = async (req, res, next) => {
 // @route   POST /api/seats
 exports.createSeat = async (req, res, next) => {
   try {
-    const seat = await Seat.create(req.body);
-    await updateLibrarySeatStats(seat.library);
+    const seat = await dataService.createSeat(req.body);
 
     res.status(201).json({
       success: true,
@@ -73,10 +56,7 @@ exports.createSeat = async (req, res, next) => {
 // @route   PUT /api/seats/:id
 exports.updateSeat = async (req, res, next) => {
   try {
-    const seat = await Seat.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    const seat = await dataService.updateSeat(req.params.id, req.body);
 
     if (!seat) {
       return res.status(404).json({
@@ -84,8 +64,6 @@ exports.updateSeat = async (req, res, next) => {
         message: 'Seat not found'
       });
     }
-
-    await updateLibrarySeatStats(seat.library);
 
     res.status(200).json({
       success: true,
@@ -100,15 +78,13 @@ exports.updateSeat = async (req, res, next) => {
 // @route   DELETE /api/seats/:id
 exports.deleteSeat = async (req, res, next) => {
   try {
-    const seat = await Seat.findByIdAndDelete(req.params.id);
+    const seat = await dataService.deleteSeat(req.params.id);
     if (!seat) {
       return res.status(404).json({
         success: false,
         message: 'Seat not found'
       });
     }
-
-    await updateLibrarySeatStats(seat.library);
 
     res.status(200).json({
       success: true,
@@ -118,3 +94,4 @@ exports.deleteSeat = async (req, res, next) => {
     next(error);
   }
 };
+
