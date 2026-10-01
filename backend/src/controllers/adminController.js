@@ -1,39 +1,14 @@
-const Library = require('../models/Library');
-const Book = require('../models/Book');
-const Seat = require('../models/Seat');
-const Booking = require('../models/Booking');
-const User = require('../models/User');
+const dataService = require('../services/dataService');
 
 // @desc    Get aggregate stats for Admin Dashboard
 // @route   GET /api/admin/stats
 exports.getAdminStats = async (req, res, next) => {
   try {
-    const totalLibraries = await Library.countDocuments({});
-    const activeLibraries = await Library.countDocuments({ status: 'open' });
-
-    const books = await Book.find({});
-    const totalBooks = books.reduce((sum, b) => sum + (b.totalCopies || 1), 0);
-    const availableBooks = books.reduce((sum, b) => sum + (b.availableCopies || 0), 0);
-
-    const seats = await Seat.find({});
-    const totalSeats = seats.length;
-    const availableSeats = seats.filter(s => s.status === 'available').length;
-
-    const activeBookings = await Booking.countDocuments({ status: 'active' });
-    const registeredUsers = await User.countDocuments({});
+    const stats = await dataService.getAdminStats();
 
     res.status(200).json({
       success: true,
-      data: {
-        totalLibraries,
-        activeLibraries,
-        totalBooks,
-        availableBooks,
-        totalSeats,
-        availableSeats,
-        activeBookings,
-        registeredUsers
-      }
+      data: stats
     });
   } catch (error) {
     next(error);
@@ -44,7 +19,7 @@ exports.getAdminStats = async (req, res, next) => {
 // @route   GET /api/admin/users
 exports.getAdminUsers = async (req, res, next) => {
   try {
-    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    const users = await dataService.findUsers();
     res.status(200).json({
       success: true,
       count: users.length,
@@ -67,7 +42,7 @@ exports.updateUserRole = async (req, res, next) => {
       });
     }
 
-    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select('-password');
+    const user = await dataService.updateUserRole(req.params.id, role);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -83,3 +58,4 @@ exports.updateUserRole = async (req, res, next) => {
     next(error);
   }
 };
+
