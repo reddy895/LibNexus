@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const dataService = require('../services/dataService');
 
 const protect = async (req, res, next) => {
   let token;
@@ -17,7 +17,7 @@ const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'libnexus_super_secret_jwt_key_2026');
-    req.user = await User.findById(decoded.id).select('-password');
+    req.user = await dataService.findUserById(decoded.id);
     if (!req.user) {
       return res.status(401).json({
         success: false,
