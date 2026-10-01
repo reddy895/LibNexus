@@ -14,7 +14,9 @@ router
   .get(protect, getBookings)
   .post(protect, createBooking);
 
+router.get('/my-bookings', protect, getBookings);
 router.get('/:id', protect, validateObjectId('id'), getBookingById);
 router.put('/:id/cancel', protect, validateObjectId('id'), cancelBooking);
 
 module.exports = router;
+
