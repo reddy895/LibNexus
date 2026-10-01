@@ -1,8 +1,7 @@
 const User = require('../models/User');
 const Library = require('../models/Library');
 const Book = require('../models/Book');
-const Seat = require('../models/Seat');
-const Booking = require('../models/Booking');
+const ActivityLog = require('../models/ActivityLog');
 const demoData = require('../data/demoData');
 
 const isDbEnabled = () => process.env.DATABASE_ENABLED === 'true';
@@ -59,12 +58,18 @@ const dataService = {
           { city: searchRegex }
         ];
       }
-      let sortOption = { createdAt: -1 };
+      let sortOption = { updatedAt: -1 };
       if (sort === 'name') sortOption = { name: 1 };
       else if (sort === 'seats') sortOption = { availableSeats: -1 };
-      else if (sort === 'books') sortOption = { availableBooks: -1 };
+      else if (sort === 'books') sortOption = { totalBooks: -1 };
 
-      return Library.find(filter).sort(sortOption);
+      const libraries = await Library.find(filter).sort(sortOption);
+      return libraries.map(lib => {
+        const obj = lib.toObject();
+        obj.availableSeats = Math.max(0, (obj.totalSeats || 0) - (obj.occupiedSeats || 0));
+        obj.occupancyPercentage = obj.totalSeats > 0 ? Math.round(((obj.occupiedSeats || 0) / obj.totalSeats) * 100) : 0;
+        return obj;
+      });
     }
     return demoData.getLibraries({ status, search, sort });
   },
@@ -77,6 +82,8 @@ const dataService = {
           const dist = demoData.calculateDistance(lat, lng, lib.latitude, lib.longitude);
           const libObj = lib.toObject();
           libObj.distance = dist;
+          libObj.availableSeats = Math.max(0, (libObj.totalSeats || 0) - (libObj.occupiedSeats || 0));
+          libObj.occupancyPercentage = libObj.totalSeats > 0 ? Math.round(((libObj.occupiedSeats || 0) / libObj.totalSeats) * 100) : 0;
           return libObj;
         })
         .filter(item => item.distance <= radius)
@@ -87,43 +94,118 @@ const dataService = {
 
   async getLibraryById(id) {
     if (isDbEnabled()) {
-      return Library.findById(id);
+      const lib = await Library.findById(id);
+      if (!lib) return null;
+      const obj = lib.toObject();
+      obj.availableSeats = Math.max(0, (obj.totalSeats || 0) - (obj.occupiedSeats || 0));
+      obj.occupancyPercentage = obj.totalSeats > 0 ? Math.round(((obj.occupiedSeats || 0) / obj.totalSeats) * 100) : 0;
+      return obj;
     }
     return demoData.getLibraryById(id);
   },
 
-  async createLibrary(data) {
+  async createLibrary(data, adminName) {
     if (isDbEnabled()) {
-      return Library.create(data);
+      const totalSeats = parseInt(data.totalSeats || 180, 10);
+      const occupiedSeats = parseInt(data.occupiedSeats || 0, 10);
+      const availableSeats = Math.max(0, totalSeats - occupiedSeats);
+
+      const lib = await Library.create({
+        ...data,
+        totalSeats,
+        occupiedSeats,
+        availableSeats
+      });
+
+      await this.logActivity(adminName || 'Admin', 'Created new library', `Added library "${lib.name}"`, lib._id);
+
+      return lib;
     }
-    return demoData.createLibrary(data);
+    return demoData.createLibrary(data, adminName);
   },
 
-  async updateLibrary(id, data) {
+  async updateLibrary(id, data, adminName) {
     if (isDbEnabled()) {
-      return Library.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+      const lib = await Library.findByIdAndUpdate(id, { ...data, updatedAt: new Date() }, { new: true, runValidators: true });
+      if (lib) {
+        await this.logActivity(adminName || 'Admin', 'Updated library details', `Updated "${lib.name}" info`, id);
+      }
+      return lib;
     }
-    return demoData.updateLibrary(id, data);
+    return demoData.updateLibrary(id, data, adminName);
   },
 
-  async deleteLibrary(id) {
+  async updateLibrarySeats(id, { totalSeats, occupiedSeats }, adminName) {
+    if (isDbEnabled()) {
+      const lib = await Library.findById(id);
+      if (!lib) {
+        const err = new Error('Library not found');
+        err.statusCode = 404;
+        throw err;
+      }
+
+      const tSeats = totalSeats !== undefined ? parseInt(totalSeats, 10) : lib.totalSeats;
+      const oSeats = occupiedSeats !== undefined ? parseInt(occupiedSeats, 10) : lib.occupiedSeats;
+
+      if (isNaN(tSeats) || isNaN(oSeats)) {
+        const err = new Error('Total seats and occupied seats must be valid numbers');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      if (oSeats > tSeats) {
+        const err = new Error(`Occupied seats (${oSeats}) cannot exceed total seats (${tSeats})`);
+        err.statusCode = 400;
+        throw err;
+      }
+
+      lib.totalSeats = tSeats;
+      lib.occupiedSeats = oSeats;
+      lib.availableSeats = Math.max(0, tSeats - oSeats);
+      lib.updatedAt = new Date();
+      await lib.save();
+
+      const occupancyPercentage = tSeats > 0 ? Math.round((oSeats / tSeats) * 100) : 0;
+
+      await this.logActivity(
+        adminName || 'Admin',
+        'Updated seat availability',
+        `Updated ${lib.name}: ${oSeats}/${tSeats} occupied (${lib.availableSeats} available, ${occupancyPercentage}% occupied)`,
+        id
+      );
+
+      return {
+        _id: lib._id,
+        name: lib.name,
+        totalSeats: lib.totalSeats,
+        occupiedSeats: lib.occupiedSeats,
+        availableSeats: lib.availableSeats,
+        occupancyPercentage,
+        updatedAt: lib.updatedAt
+      };
+    }
+    return demoData.updateLibrarySeats(id, { totalSeats, occupiedSeats }, adminName);
+  },
+
+  async deleteLibrary(id, adminName) {
     if (isDbEnabled()) {
       const library = await Library.findByIdAndDelete(id);
       if (library) {
-        await Seat.deleteMany({ library: id });
         await Book.deleteMany({ library: id });
+        await this.logActivity(adminName || 'Admin', 'Deleted library', `Removed library "${library.name}"`, id);
       }
       return library;
     }
-    return demoData.deleteLibrary(id);
+    return demoData.deleteLibrary(id, adminName);
   },
 
   // --- BOOKS ---
-  async getBooks({ library, category, search }) {
+  async getBooks({ library, category, search, isNewArrival }) {
     if (isDbEnabled()) {
       const filter = {};
       if (library) filter.library = library;
       if (category && category !== 'all') filter.category = new RegExp(`^${category}$`, 'i');
+      if (isNewArrival === 'true' || isNewArrival === true) filter.isNewArrival = true;
       if (search) {
         const searchRegex = new RegExp(search, 'i');
         filter.$or = [
@@ -135,7 +217,7 @@ const dataService = {
       }
       return Book.find(filter).populate('library', 'name address city image').sort({ createdAt: -1 });
     }
-    return demoData.getBooks({ library, category, search });
+    return demoData.getBooks({ library, category, search, isNewArrival });
   },
 
   async getBookById(id) {
@@ -145,188 +227,55 @@ const dataService = {
     return demoData.getBookById(id);
   },
 
-  async createBook(data) {
+  async createBook(data, adminName) {
     if (isDbEnabled()) {
       const book = await Book.create(data);
-      await this.updateLibraryBookStats(book.library);
+      await this.logActivity(
+        adminName || 'Admin',
+        'Added new book',
+        `Added "${book.title}" by ${book.author}${book.isNewArrival ? ' (Marked as New Arrival)' : ''}`,
+        data.library
+      );
       return book;
     }
-    return demoData.createBook(data);
+    return demoData.createBook(data, adminName);
   },
 
-  async updateBook(id, data) {
+  async updateBook(id, data, adminName) {
     if (isDbEnabled()) {
       const book = await Book.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-      if (book) await this.updateLibraryBookStats(book.library);
+      if (book) {
+        await this.logActivity(adminName || 'Admin', 'Updated book details', `Updated "${book.title}"`, book.library);
+      }
       return book;
     }
-    return demoData.updateBook(id, data);
+    return demoData.updateBook(id, data, adminName);
   },
 
-  async deleteBook(id) {
+  async deleteBook(id, adminName) {
     if (isDbEnabled()) {
       const book = await Book.findByIdAndDelete(id);
-      if (book) await this.updateLibraryBookStats(book.library);
+      if (book) {
+        await this.logActivity(adminName || 'Admin', 'Deleted book', `Removed "${book.title}" from catalog`, book.library);
+      }
       return book;
     }
-    return demoData.deleteBook(id);
+    return demoData.deleteBook(id, adminName);
   },
 
-  // --- SEATS ---
-  async getSeatsByLibrary(libraryId, { floor, status } = {}) {
+  // --- ACTIVITY LOGS ---
+  async getActivityLogs() {
     if (isDbEnabled()) {
-      const filter = { library: libraryId };
-      if (floor) filter.floor = parseInt(floor, 10);
-      if (status) filter.status = status.toLowerCase();
-      return Seat.find(filter).sort({ floor: 1, seatNumber: 1 });
+      return ActivityLog.find({}).sort({ timestamp: -1 }).limit(50);
     }
-    return demoData.getSeatsByLibrary(libraryId, { floor, status });
+    return demoData.getActivityLogs();
   },
 
-  async getAvailableSeatsByLibrary(libraryId) {
+  async logActivity(user, action, details, libraryId = null) {
     if (isDbEnabled()) {
-      return Seat.find({ library: libraryId, status: 'available' }).sort({ floor: 1, seatNumber: 1 });
+      return ActivityLog.create({ user, action, details, libraryId, timestamp: new Date() });
     }
-    return demoData.getAvailableSeatsByLibrary(libraryId);
-  },
-
-  async createSeat(data) {
-    if (isDbEnabled()) {
-      const seat = await Seat.create(data);
-      await this.updateLibrarySeatStats(seat.library);
-      return seat;
-    }
-    return demoData.createSeat(data);
-  },
-
-  async updateSeat(id, data) {
-    if (isDbEnabled()) {
-      const seat = await Seat.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-      if (seat) await this.updateLibrarySeatStats(seat.library);
-      return seat;
-    }
-    return demoData.updateSeat(id, data);
-  },
-
-  async deleteSeat(id) {
-    if (isDbEnabled()) {
-      const seat = await Seat.findByIdAndDelete(id);
-      if (seat) await this.updateLibrarySeatStats(seat.library);
-      return seat;
-    }
-    return demoData.deleteSeat(id);
-  },
-
-  // --- BOOKINGS ---
-  async createBooking({ userId, libraryId, seatId, start, end }) {
-    if (isDbEnabled()) {
-      const library = await Library.findById(libraryId);
-      if (!library) {
-        const err = new Error('Library not found');
-        err.statusCode = 404;
-        throw err;
-      }
-
-      const seat = await Seat.findById(seatId);
-      if (!seat) {
-        const err = new Error('Seat not found');
-        err.statusCode = 404;
-        throw err;
-      }
-
-      if (seat.library.toString() !== libraryId.toString()) {
-        const err = new Error(`Seat ${seat.seatNumber} does not belong to library ${library.name}`);
-        err.statusCode = 400;
-        throw err;
-      }
-
-      if (seat.status !== 'available') {
-        const err = new Error(`Seat ${seat.seatNumber} is currently ${seat.status}`);
-        err.statusCode = 409;
-        throw err;
-      }
-
-      const overlappingBooking = await Booking.findOne({
-        seat: seatId,
-        status: 'active',
-        $or: [{ startTime: { $lt: end }, endTime: { $gt: start } }]
-      });
-
-      if (overlappingBooking) {
-        const err = new Error(`Seat ${seat.seatNumber} is already reserved for the selected time window`);
-        err.statusCode = 409;
-        throw err;
-      }
-
-      const booking = await Booking.create({
-        user: userId,
-        library: libraryId,
-        seat: seatId,
-        startTime: start,
-        endTime: end,
-        status: 'active'
-      });
-
-      seat.status = 'reserved';
-      await seat.save();
-      await this.updateLibrarySeatStats(libraryId);
-
-      return Booking.findById(booking._id)
-        .populate('user', 'name email')
-        .populate('library', 'name address image')
-        .populate('seat', 'seatNumber floor section type status');
-    }
-    return demoData.createBooking({ userId, libraryId, seatId, start, end });
-  },
-
-  async getBookings({ userId, libraryId, status, isUserOnly } = {}) {
-    if (isDbEnabled()) {
-      const filter = {};
-      if (isUserOnly && userId) filter.user = userId;
-      else if (userId) filter.user = userId;
-      if (libraryId) filter.library = libraryId;
-      if (status) filter.status = status;
-
-      return Booking.find(filter)
-        .populate('user', 'name email')
-        .populate('library', 'name address image')
-        .populate('seat', 'seatNumber floor section type status')
-        .sort({ createdAt: -1 });
-    }
-    return demoData.getBookings({ userId, libraryId, status, isUserOnly });
-  },
-
-  async getBookingById(id) {
-    if (isDbEnabled()) {
-      return Booking.findById(id)
-        .populate('user', 'name email')
-        .populate('library', 'name address image')
-        .populate('seat', 'seatNumber floor section type status');
-    }
-    return demoData.getBookingById(id);
-  },
-
-  async cancelBooking(id) {
-    if (isDbEnabled()) {
-      const booking = await Booking.findById(id);
-      if (!booking) return null;
-      if (booking.status === 'cancelled') {
-        const err = new Error('Booking is already cancelled');
-        err.statusCode = 400;
-        throw err;
-      }
-      booking.status = 'cancelled';
-      await booking.save();
-
-      const seat = await Seat.findById(booking.seat);
-      if (seat) {
-        seat.status = 'available';
-        await seat.save();
-        await this.updateLibrarySeatStats(seat.library);
-      }
-      return booking;
-    }
-    return demoData.cancelBooking(id);
+    return demoData.getActivityLogs()[0];
   },
 
   // --- ADMIN STATS ---
@@ -335,46 +284,29 @@ const dataService = {
       const totalLibraries = await Library.countDocuments({});
       const activeLibraries = await Library.countDocuments({ status: 'open' });
 
+      const libraries = await Library.find({});
+      const totalSeats = libraries.reduce((sum, l) => sum + (l.totalSeats || 0), 0);
+      const occupiedSeats = libraries.reduce((sum, l) => sum + (l.occupiedSeats || 0), 0);
+      const availableSeats = Math.max(0, totalSeats - occupiedSeats);
+
       const books = await Book.find({});
       const totalBooks = books.reduce((sum, b) => sum + (b.totalCopies || 1), 0);
-      const availableBooks = books.reduce((sum, b) => sum + (b.availableCopies || 0), 0);
-
-      const seats = await Seat.find({});
-      const totalSeats = seats.length;
-      const availableSeats = seats.filter(s => s.status === 'available').length;
-
-      const activeBookings = await Booking.countDocuments({ status: 'active' });
+      const newArrivalsCount = books.filter(b => b.isNewArrival).length;
       const registeredUsers = await User.countDocuments({});
 
       return {
         totalLibraries,
         activeLibraries,
         totalBooks,
-        availableBooks,
         totalSeats,
+        occupiedSeats,
         availableSeats,
-        activeBookings,
+        occupancyPercentage: totalSeats > 0 ? Math.round((occupiedSeats / totalSeats) * 100) : 0,
+        newArrivalsCount,
         registeredUsers
       };
     }
     return demoData.getAdminStats();
-  },
-
-  // --- STAT HELPERS ---
-  async updateLibraryBookStats(libraryId) {
-    if (!libraryId) return;
-    const books = await Book.find({ library: libraryId });
-    const totalBooks = books.reduce((sum, b) => sum + (b.totalCopies || 1), 0);
-    const availableBooks = books.reduce((sum, b) => sum + (b.availableCopies || 0), 0);
-    await Library.findByIdAndUpdate(libraryId, { totalBooks, availableBooks });
-  },
-
-  async updateLibrarySeatStats(libraryId) {
-    if (!libraryId) return;
-    const seats = await Seat.find({ library: libraryId });
-    const totalSeats = seats.length;
-    const availableSeats = seats.filter(s => s.status === 'available').length;
-    await Library.findByIdAndUpdate(libraryId, { totalSeats, availableSeats });
   }
 };
 

@@ -22,6 +22,14 @@ const bookSchema = new mongoose.Schema(
       default: 'General',
       trim: true
     },
+    publisher: {
+      type: String,
+      default: 'LibNexus Press'
+    },
+    publicationYear: {
+      type: Number,
+      default: 2024
+    },
     description: {
       type: String,
       default: ''
@@ -37,13 +45,21 @@ const bookSchema = new mongoose.Schema(
     },
     totalCopies: {
       type: Number,
-      default: 1,
+      default: 3,
       min: 1
     },
     availableCopies: {
       type: Number,
-      default: 1,
+      default: 3,
       min: 0
+    },
+    isNewArrival: {
+      type: Boolean,
+      default: false
+    },
+    arrivalDate: {
+      type: Date,
+      default: Date.now
     }
   },
   {
@@ -51,6 +67,6 @@ const bookSchema = new mongoose.Schema(
   }
 );
 
-bookSchema.index({ library: 1, title: 1, category: 1 });
+bookSchema.index({ library: 1, title: 1, category: 1, isNewArrival: 1 });
 
 module.exports = mongoose.model('Book', bookSchema);

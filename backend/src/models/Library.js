@@ -43,12 +43,17 @@ const librarySchema = new mongoose.Schema(
     },
     totalSeats: {
       type: Number,
-      default: 0,
+      default: 180,
+      min: 0
+    },
+    occupiedSeats: {
+      type: Number,
+      default: 56,
       min: 0
     },
     availableSeats: {
       type: Number,
-      default: 0,
+      default: 124,
       min: 0
     },
     totalBooks: {
@@ -61,6 +66,14 @@ const librarySchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    phone: {
+      type: String,
+      default: '+91 80 2345 6789'
+    },
+    email: {
+      type: String,
+      default: 'contact@libnexus.org'
+    },
     status: {
       type: String,
       enum: ['open', 'closed'],
@@ -68,13 +81,21 @@ const librarySchema = new mongoose.Schema(
     },
     facilities: {
       type: [String],
-      default: ['High-Speed Wi-Fi', 'AC', 'Silent Zone', 'Power Outlets']
+      default: ['High-Speed Wi-Fi', 'AC', 'Silent Zone', 'Power Outlets', 'Digital Catalog']
     }
   },
   {
     timestamps: true
   }
 );
+
+librarySchema.pre('save', function (next) {
+  if (this.occupiedSeats > this.totalSeats) {
+    this.occupiedSeats = this.totalSeats;
+  }
+  this.availableSeats = Math.max(0, this.totalSeats - this.occupiedSeats);
+  next();
+});
 
 librarySchema.index({ latitude: 1, longitude: 1 });
 
