@@ -89,10 +89,14 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   await connectDB();
 
+  const isDbOn = process.env.DATABASE_ENABLED === 'true';
+
   const server = app.listen(PORT, () => {
     console.log(`==================================================`);
     console.log(`🚀 LibNexus Express Server running on port ${PORT}`);
     console.log(`📡 API Base URL: http://localhost:${PORT}/api`);
+    console.log(`ℹ️ Database: ${isDbOn ? 'enabled' : 'disabled (demo mode)'}`);
+    console.log(`🗺️ Map services: enabled`);
     console.log(`==================================================`);
   });
 
