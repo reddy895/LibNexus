@@ -12,8 +12,8 @@ const authRoutes = require('./routes/authRoutes');
 const libraryRoutes = require('./routes/libraryRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const seatRoutes = require('./routes/seatRoutes');
-const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 const app = express();
 
@@ -39,7 +39,7 @@ app.use(
       callback(null, true);
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
@@ -60,8 +60,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/libraries', libraryRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/seats', seatRoutes);
-app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/activity', activityRoutes);
 
 // Health Check Endpoint
 app.get('/api', (req, res) => {

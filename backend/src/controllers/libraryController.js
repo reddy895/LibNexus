@@ -65,7 +65,8 @@ exports.getLibraryById = async (req, res, next) => {
 // @route   POST /api/libraries
 exports.createLibrary = async (req, res, next) => {
   try {
-    const library = await dataService.createLibrary(req.body);
+    const adminName = req.user ? req.user.name : 'Library Admin';
+    const library = await dataService.createLibrary(req.body, adminName);
     res.status(201).json({
       success: true,
       data: library
@@ -79,7 +80,8 @@ exports.createLibrary = async (req, res, next) => {
 // @route   PUT /api/libraries/:id
 exports.updateLibrary = async (req, res, next) => {
   try {
-    const library = await dataService.updateLibrary(req.params.id, req.body);
+    const adminName = req.user ? req.user.name : 'Library Admin';
+    const library = await dataService.updateLibrary(req.params.id, req.body, adminName);
 
     if (!library) {
       return res.status(404).json({
@@ -97,11 +99,41 @@ exports.updateLibrary = async (req, res, next) => {
   }
 };
 
+// @desc    Update library seat occupancy (ADMIN)
+// @route   PATCH /api/libraries/:id/seats or PUT /api/libraries/:id/seats
+exports.updateLibrarySeats = async (req, res, next) => {
+  try {
+    const { totalSeats, occupiedSeats } = req.body;
+    const adminName = req.user ? req.user.name : 'Praveen (Admin)';
+
+    const result = await dataService.updateLibrarySeats(
+      req.params.id,
+      { totalSeats, occupiedSeats },
+      adminName
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Library seat availability updated successfully',
+      data: result
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
+    next(error);
+  }
+};
+
 // @desc    Delete library
 // @route   DELETE /api/libraries/:id
 exports.deleteLibrary = async (req, res, next) => {
   try {
-    const library = await dataService.deleteLibrary(req.params.id);
+    const adminName = req.user ? req.user.name : 'Library Admin';
+    const library = await dataService.deleteLibrary(req.params.id, adminName);
     if (!library) {
       return res.status(404).json({
         success: false,
@@ -117,4 +149,3 @@ exports.deleteLibrary = async (req, res, next) => {
     next(error);
   }
 };
-

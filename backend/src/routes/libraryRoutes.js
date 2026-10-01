@@ -6,9 +6,9 @@ const {
   getLibraryById,
   createLibrary,
   updateLibrary,
+  updateLibrarySeats,
   deleteLibrary
 } = require('../controllers/libraryController');
-const { getSeatsByLibrary, getAvailableSeatsByLibrary } = require('../controllers/seatController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { validateObjectId } = require('../middleware/validate');
 
@@ -25,7 +25,7 @@ router
   .put(protect, authorize('admin', 'librarian'), validateObjectId('id'), updateLibrary)
   .delete(protect, authorize('admin'), validateObjectId('id'), deleteLibrary);
 
-router.get('/:libraryId/seats', validateObjectId('libraryId'), getSeatsByLibrary);
-router.get('/:libraryId/seats/available', validateObjectId('libraryId'), getAvailableSeatsByLibrary);
+router.patch('/:id/seats', protect, authorize('admin', 'librarian'), validateObjectId('id'), updateLibrarySeats);
+router.put('/:id/seats', protect, authorize('admin', 'librarian'), validateObjectId('id'), updateLibrarySeats);
 
 module.exports = router;
