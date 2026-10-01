@@ -2,24 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import libraryService from '../services/libraryService';
 import bookService from '../services/bookService';
-import MapView from '../components/MapView';
-import BookCard from '../components/BookCard';
+import OccupancyBadge from '../components/OccupancyBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import {
-  MapPin,
-  Clock,
-  Phone,
-  Mail,
-  Star,
-  Users,
-  BookOpen,
-  Calendar,
-  CheckCircle,
-  Wifi,
-  Sparkles,
-  ChevronRight
-} from 'lucide-react';
+import MapView from '../components/MapView';
+import { MapPin, Clock, Phone, Mail, BookOpen, Sparkles, CheckCircle2, ArrowLeft, Info } from 'lucide-react';
 
 const LibraryDetailsPage = () => {
   const { id } = useParams();
@@ -27,258 +14,185 @@ const LibraryDetailsPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchLibraryData = async () => {
       setLoading(true);
       setError(null);
       try {
         const libData = await libraryService.getLibraryById(id);
-        setLibrary(libData);
+        const lib = libData.data || libData;
+        setLibrary(lib);
 
-        // Fetch books for this library
-        const booksData = await bookService.getBooks({ libraryId: id });
-        setBooks(booksData.books || booksData);
+        const booksData = await bookService.getBooks({ library: id });
+        const bookList = Array.isArray(booksData) ? booksData : booksData.data || [];
+        setBooks(bookList);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load library details');
+        console.error('Error fetching library details:', err);
+        setError(err.message || 'Failed to load library profile');
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchData();
-    }
+    fetchLibraryData();
   }, [id]);
 
-  if (loading) return <LoadingSpinner message="Loading library details..." />;
-  if (error) return <ErrorMessage message={error} />;
-  if (!library) return <ErrorMessage message="Library not found." />;
+  if (loading) return <LoadingSpinner message="Loading live library profile & seat status..." />;
+  if (error || !library) return <ErrorMessage message={error || 'Library profile not found'} />;
+
+  const isOpen = (library.status || '').toLowerCase() === 'open';
+  const total = library.totalSeats || 180;
+  const occupied = library.occupiedSeats ?? 56;
+  const available = library.availableSeats ?? Math.max(0, total - occupied);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs text-slate-400">
-        <Link to="/" className="hover:text-white transition-colors">Home</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <Link to="/libraries" className="hover:text-white transition-colors">Libraries</Link>
-        <ChevronRight className="w-3 h-3 text-slate-600" />
-        <span className="text-slate-200 font-medium">{library.name}</span>
-      </nav>
 
-      {/* Hero Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-        <div className="relative h-64 sm:h-80 w-full overflow-hidden">
-          <img
-            src={library.image || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1200&q=80'}
-            alt={library.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+      {/* Back Link */}
+      <div>
+        <Link to="/libraries" className="inline-flex items-center gap-1 text-xs font-bold text-[#B93434] hover:underline uppercase tracking-wider">
+          <ArrowLeft className="w-4 h-4" /> Back to All Libraries
+        </Link>
+      </div>
 
-          {/* Rating & Availability Pills */}
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700/60 text-xs font-semibold text-amber-400">
-              <Star className="w-4 h-4 fill-amber-400" />
-              <span>{library.rating || 4.8} / 5.0</span>
-            </div>
-
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border ${
-              library.availableSeats > 0
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-            }`}>
-              <Users className="w-4 h-4" />
-              <span>{library.availableSeats} / {library.totalSeats} Seats Free</span>
-            </div>
+      {/* Hero Profile Banner */}
+      <div className="bg-[#151A2B] text-white rounded-2xl border-2 border-[#151A2B] shadow-sharp overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0">
+        <div className="lg:col-span-7 p-6 sm:p-8 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded text-xs font-black uppercase tracking-wider ${isOpen ? 'bg-[#159A70] text-white' : 'bg-[#B93434] text-white'}`}>
+              {isOpen ? 'OPEN NOW' : 'CLOSED'}
+            </span>
+            <span className="text-xs font-bold text-slate-400">{library.city || 'Bengaluru'} Network</span>
           </div>
 
-          {/* Title & Info on Image */}
-          <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <span className="inline-block px-2.5 py-1 rounded-md bg-indigo-600/80 text-white text-xs font-medium mb-2">
-                {library.city}
-              </span>
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                {library.name}
-              </h1>
-              <p className="text-slate-300 text-xs sm:text-sm flex items-center gap-1.5 mt-1">
-                <MapPin className="w-4 h-4 text-indigo-400 shrink-0" />
-                {library.address}
-              </p>
-            </div>
+          <h1 className="text-3xl sm:text-4xl font-black font-heading leading-tight">{library.name}</h1>
 
-            {/* Main CTA */}
-            <Link
-              to={`/libraries/${library._id}/seats`}
-              className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 shrink-0 transform hover:-translate-y-0.5"
-            >
-              <Calendar className="w-4 h-4" />
-              Reserve a Seat Now
-            </Link>
+          <p className="text-xs sm:text-sm text-slate-300 flex items-center gap-1.5">
+            <MapPin className="w-4 h-4 text-[#B93434] shrink-0" /> {library.address}
+          </p>
+
+          <div className="pt-4 flex flex-wrap gap-4 text-xs font-medium text-slate-300 border-t border-slate-800">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-[#E3A72F]" /> Hours: {library.openingTime} - {library.closingTime}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Phone className="w-4 h-4 text-slate-400" /> {library.phone || '+91 80 2345 6789'}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Mail className="w-4 h-4 text-slate-400" /> {library.email || 'contact@libnexus.org'}
+            </span>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-t border-slate-800 bg-slate-900/90 px-6">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-4 text-xs font-semibold border-b-2 transition-colors ${
-              activeTab === 'overview'
-                ? 'border-indigo-500 text-indigo-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Overview & Location
-          </button>
-          <button
-            onClick={() => setActiveTab('books')}
-            className={`px-4 py-4 text-xs font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === 'books'
-                ? 'border-indigo-500 text-indigo-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            Book Catalog ({books.length})
-          </button>
+        <div className="lg:col-span-5 h-64 lg:h-auto bg-slate-800 relative">
+          <img src={library.image} alt={library.name} className="w-full h-full object-cover" />
         </div>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'overview' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Info */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Description */}
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm space-y-3">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                About {library.name}
-              </h2>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                {library.description || `${library.name} is a modern library facility located in ${library.city}, offering state-of-the-art study spaces, high-speed Wi-Fi, computer labs, and a comprehensive collection of books and research materials.`}
-              </p>
-            </div>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            {/* Amenities Grid */}
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Wifi className="w-4 h-4 text-indigo-400" />
-                Available Amenities
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {library.amenities && library.amenities.length > 0 ? (
-                  library.amenities.map((amenity, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-200 text-xs font-medium"
-                    >
-                      <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>{amenity}</span>
-                    </div>
-                  ))
-                ) : (
-                  ['High-Speed Wi-Fi', 'Power Outlets', 'AC / Climate Control', 'Quiet Study Zone', 'Printing Services', 'Coffee Machine'].map((amenity, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-200 text-xs font-medium"
-                    >
-                      <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>{amenity}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+        {/* Left Column: Details, Books, Facilities */}
+        <div className="lg:col-span-8 space-y-8">
 
-            {/* Location & Interactive Map */}
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm space-y-4">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-indigo-400" />
-                Interactive Map Location
-              </h2>
-              <div className="h-80 rounded-xl overflow-hidden border border-slate-700/80">
-                <MapView libraries={[library]} height="100%" zoom={15} />
-              </div>
-            </div>
+          {/* About Section */}
+          <div className="bg-white border-2 border-[#151A2B] rounded-xl p-6 shadow-sharp-subtle space-y-3">
+            <h2 className="text-lg font-black text-[#151A2B] uppercase tracking-wider border-b border-[#E4DFD5] pb-2">
+              About The Library
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+              {library.description || 'Modern public library facility equipped with silent reading zones, computer labs, research archives, and ergonomic desks.'}
+            </p>
           </div>
 
-          {/* Sidebar Specs */}
-          <div className="space-y-6">
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm space-y-6">
-              <h3 className="text-base font-bold text-white border-b border-slate-800 pb-3">
-                Quick Specifications
-              </h3>
-
-              <div className="space-y-4 text-xs">
-                <div className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block font-semibold text-slate-200">Operating Hours</span>
-                    <span className="text-slate-400">{library.operatingHours || 'Mon-Sat: 8:00 AM - 10:00 PM, Sun: 10:00 AM - 6:00 PM'}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block font-semibold text-slate-200">Contact Phone</span>
-                    <span className="text-slate-400">{library.phone || '+1 (555) 234-5678'}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block font-semibold text-slate-200">Email Contact</span>
-                    <span className="text-slate-400">{library.email || `contact@${library.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.org`}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Users className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block font-semibold text-slate-200">Total Capacity</span>
-                    <span className="text-slate-400">{library.totalSeats} study seats across 4 zones</span>
-                  </div>
-                </div>
+          {/* Book Collection */}
+          <div className="bg-white border-2 border-[#151A2B] rounded-xl p-6 shadow-sharp-subtle space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E4DFD5] pb-2">
+              <div>
+                <h2 className="text-lg font-black text-[#151A2B] uppercase tracking-wider">Catalog Collection</h2>
+                <p className="text-xs text-slate-500">{books.length} titles available in physical inventory</p>
               </div>
-
-              <Link
-                to={`/libraries/${library._id}/seats`}
-                className="w-full block text-center py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl transition-all shadow-md"
-              >
-                Book a Seat at {library.name}
+              <Link to={`/books?library=${id}`} className="text-xs font-bold text-[#B93434] hover:underline uppercase">
+                View All Catalog →
               </Link>
             </div>
-          </div>
-        </div>
-      ) : (
-        /* Books Tab Content */
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">
-              Books Available at {library.name}
-            </h2>
-            <span className="text-xs text-slate-400">{books.length} titles in catalog</span>
+
+            {books.length === 0 ? (
+              <p className="text-xs text-slate-500 py-4 italic">No books listed for this library location.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {books.slice(0, 4).map((book) => (
+                  <div key={book._id} className="p-3 bg-[#F7F5F1] rounded-lg border border-[#E4DFD5] flex gap-3">
+                    <img src={book.coverImage} alt={book.title} className="w-16 h-20 object-cover rounded shadow-sm shrink-0" />
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black uppercase text-[#B93434]">{book.category}</span>
+                      <h4 className="font-bold text-xs text-[#151A2B] leading-tight line-clamp-1">{book.title}</h4>
+                      <p className="text-[11px] text-slate-500">{book.author}</p>
+                      <span className="inline-block px-1.5 py-0.5 rounded bg-white text-[9px] font-bold border border-slate-300">
+                        Copies: {book.availableCopies} free
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {books.length === 0 ? (
-            <div className="text-center py-12 bg-slate-900 border border-slate-800 rounded-2xl">
-              <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400 text-sm">No books cataloged specifically for this library location yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {books.map((book) => (
-                <BookCard key={book._id} book={book} />
+          {/* Facilities */}
+          <div className="bg-white border-2 border-[#151A2B] rounded-xl p-6 shadow-sharp-subtle space-y-3">
+            <h2 className="text-lg font-black text-[#151A2B] uppercase tracking-wider border-b border-[#E4DFD5] pb-2">
+              Amenities & Facilities
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+              {(library.facilities || ['Wi-Fi', 'AC', 'Silent Zone', 'Power Outlets']).map((fac, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2.5 bg-[#F7F5F1] rounded-lg border border-[#E4DFD5] text-xs font-bold text-[#151A2B]">
+                  <CheckCircle2 className="w-4 h-4 text-[#159A70] shrink-0" /> {fac}
+                </div>
               ))}
             </div>
-          )}
+          </div>
+
+          {/* Location Map */}
+          <div className="bg-white border-2 border-[#151A2B] rounded-xl p-6 shadow-sharp-subtle space-y-4">
+            <h2 className="text-lg font-black text-[#151A2B] uppercase tracking-wider border-b border-[#E4DFD5] pb-2">
+              Location & Access
+            </h2>
+            <MapView libraries={[library]} center={[library.latitude, library.longitude]} zoom={14} height="320px" />
+          </div>
+
         </div>
-      )}
+
+        {/* Right Column: Live Availability Card */}
+        <div className="lg:col-span-4 space-y-6">
+
+          <div className="bg-[#151A2B] text-white p-6 rounded-2xl border-2 border-[#151A2B] shadow-sharp space-y-6 sticky top-24">
+            <div className="border-b border-slate-700 pb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#E3A72F]">Real-Time Status</span>
+              <h3 className="text-xl font-black mt-0.5">Seat Occupancy</h3>
+            </div>
+
+            <OccupancyBadge
+              totalSeats={total}
+              occupiedSeats={occupied}
+              availableSeats={available}
+              updatedAt={library.updatedAt}
+            />
+
+            <div className="bg-[#1E253B] p-4 rounded-xl border border-slate-700 space-y-2 text-xs">
+              <div className="flex items-center gap-2 text-[#E3A72F] font-bold">
+                <Info className="w-4 h-4 shrink-0" /> Visit Policy
+              </div>
+              <p className="text-slate-300 leading-relaxed text-[11px]">
+                Seat availability is updated live by library staff. Walk in during opening hours ({library.openingTime} - {library.closingTime}). Seats are available on a first-come basis.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   );
 };
