@@ -1,121 +1,121 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen, MapPin, Search, User, LogOut, LayoutDashboard, Shield, Menu, X } from 'lucide-react';
+import { Library, BookOpen, MapPin, Search, Shield, LogOut, User, Menu, X, Sparkles } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, isAuthenticated, isLibrarian, logout } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0F172A] text-white shadow-md">
+    <header className="bg-[#151A2B] text-white border-b border-slate-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
+
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-lg bg-[#9F2D2D] flex items-center justify-center text-white shadow-sm group-hover:bg-[#b83535] transition-colors">
-              <BookOpen className="w-5 h-5" />
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-lg bg-[#B93434] text-white flex items-center justify-center font-black text-lg shadow-sharp-crimson transition-transform group-hover:scale-105">
+              LN
             </div>
             <div>
-              <span className="font-extrabold text-xl tracking-tight block leading-none">LibNexus</span>
-              <span className="text-[10px] text-gray-400 font-medium tracking-wider uppercase">Smart Library Platform</span>
+              <span className="text-xl font-black tracking-tight text-white font-heading uppercase">
+                LIB<span className="text-[#B93434]">NEXUS</span>
+              </span>
+              <span className="hidden sm:block text-[10px] text-slate-400 font-mono -mt-1 tracking-widest uppercase">
+                Smart Library Network
+              </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center space-x-1">
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-6">
             <Link
               to="/libraries"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                isActive('/libraries') ? 'bg-slate-800 text-amber-400' : 'text-gray-300 hover:text-white hover:bg-slate-800/60'
+              className={`flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase transition-colors ${
+                isActive('/libraries') ? 'text-[#E3A72F]' : 'text-slate-300 hover:text-white'
               }`}
             >
-              Libraries
+              <Library className="w-4 h-4 text-[#B93434]" /> Libraries
             </Link>
 
             <Link
               to="/books"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                isActive('/books') ? 'bg-slate-800 text-amber-400' : 'text-gray-300 hover:text-white hover:bg-slate-800/60'
+              className={`flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase transition-colors ${
+                isActive('/books') ? 'text-[#E3A72F]' : 'text-slate-300 hover:text-white'
               }`}
             >
-              Books
+              <BookOpen className="w-4 h-4 text-[#E3A72F]" /> Books
             </Link>
 
             <Link
               to="/map"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                isActive('/map') ? 'bg-slate-800 text-amber-400' : 'text-gray-300 hover:text-white hover:bg-slate-800/60'
+              className={`flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase transition-colors ${
+                isActive('/map') ? 'text-[#E3A72F]' : 'text-slate-300 hover:text-white'
               }`}
             >
-              Map
+              <MapPin className="w-4 h-4 text-[#159A70]" /> Map View
             </Link>
-
-            {isAuthenticated && (
-              <Link
-                to="/bookings"
-                className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                  isActive('/bookings') ? 'bg-slate-800 text-amber-400' : 'text-gray-300 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                My Bookings
-              </Link>
-            )}
-
-            {isAdmin && (
-              <Link
-                to="/admin"
-                className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center space-x-1 ${
-                  location.pathname.startsWith('/admin') ? 'bg-[#9F2D2D] text-white' : 'text-amber-400 hover:bg-slate-800'
-                }`}
-              >
-                <Shield className="w-4 h-4" />
-                <span>Admin</span>
-              </Link>
-            )}
           </nav>
 
-          {/* User Auth Controls */}
-          <div className="hidden md:flex items-center space-x-3">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-semibold transition-colors border border-slate-700"
-                >
-                  <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full object-cover" />
-                  <span className="text-gray-200">{user.name.split(' ')[0]}</span>
-                </Link>
+          {/* Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center relative w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search books, ISBN, author..."
+              className="w-full pl-9 pr-3 py-1.5 bg-[#1E253B] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#E3A72F] transition-colors"
+            />
+          </form>
 
+          {/* Right Action Links */}
+          <div className="hidden sm:flex items-center space-x-4">
+            {isLibrarian && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-extrabold uppercase tracking-wider rounded-md transition-colors shadow-sm"
+              >
+                <Shield className="w-3.5 h-3.5" /> Admin Portal
+              </Link>
+            )}
+
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3 border-l border-slate-700 pl-4">
+                <span className="text-xs text-slate-300 font-medium">
+                  {user?.name}
+                </span>
                 <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                  title="Log out"
+                  onClick={logout}
+                  className="p-1.5 text-slate-400 hover:text-rose-400 transition-colors"
+                  title="Sign out"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-semibold text-gray-200 hover:text-white transition-colors"
+                  className="px-3 py-1.5 text-slate-300 hover:text-white text-xs font-bold uppercase tracking-wider transition-colors"
                 >
                   Log In
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-[#9F2D2D] hover:bg-[#b83535] text-white rounded-lg transition-colors shadow-sm"
+                  className="px-3.5 py-1.5 bg-white text-[#151A2B] hover:bg-cream-200 text-xs font-black uppercase tracking-wider rounded-md transition-colors shadow-sm"
                 >
                   Register
                 </Link>
@@ -123,91 +123,64 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-300 hover:text-white focus:outline-none"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-slate-300 hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-2">
+        <div className="md:hidden bg-[#1E253B] border-t border-slate-800 px-4 pt-3 pb-6 space-y-4">
           <Link
             to="/libraries"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-slate-800"
+            className="block text-sm font-bold text-white uppercase tracking-wider py-1"
           >
-            Libraries
+            Libraries Network
           </Link>
           <Link
             to="/books"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-slate-800"
+            className="block text-sm font-bold text-white uppercase tracking-wider py-1"
           >
-            Books
+            Book Catalog
           </Link>
           <Link
             to="/map"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-slate-800"
+            className="block text-sm font-bold text-white uppercase tracking-wider py-1"
           >
-            Map
+            Interactive Map
           </Link>
-          {isAuthenticated ? (
-            <>
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium text-amber-400 hover:bg-slate-800"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/bookings"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-200 hover:bg-slate-800"
-              >
-                My Bookings
-              </Link>
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-slate-800"
-                >
-                  Admin Panel
-                </Link>
-              )}
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-slate-800"
-              >
-                Log Out
-              </button>
-            </>
-          ) : (
-            <div className="pt-2 border-t border-slate-800 flex flex-col space-y-2">
+
+          {isLibrarian && (
+            <Link
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-sm font-black text-[#B93434] uppercase tracking-wider py-1"
+            >
+              🛡️ Admin Portal
+            </Link>
+          )}
+
+          {!isAuthenticated && (
+            <div className="flex gap-2 pt-2 border-t border-slate-700">
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-4 py-2 text-sm font-semibold border border-slate-700 rounded-lg text-white"
+                className="flex-1 py-2 text-center text-xs font-bold text-white bg-slate-800 rounded"
               >
                 Log In
               </Link>
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-4 py-2 text-sm font-semibold bg-[#9F2D2D] text-white rounded-lg"
+                className="flex-1 py-2 text-center text-xs font-bold text-slate-900 bg-white rounded"
               >
                 Register
               </Link>

@@ -4,31 +4,50 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LibNexus — Find Your Space to Learn.</title>
-    <meta name="description" content="LibNexus Smart Library & Seat Reservation Platform" />
+    <title>LibNexus — Smart Library Discovery Network</title>
+    <meta name="description" content="Know your library before you arrive. Live seat occupancy and catalog discovery." />
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Leaflet Map CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <!-- Tailwind CSS CDN Fallback -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              cream: '#FAF8F5',
-              charcoal: '#0F172A',
-              burgundy: '#9F2D2D'
+              navy: {
+                900: '#151A2B',
+                800: '#1E253B',
+                700: '#2A334E',
+                600: '#384466'
+              },
+              crimson: {
+                600: '#B93434',
+                700: '#9B2A2A'
+              },
+              cream: {
+                50: '#FAF8F5',
+                100: '#F7F5F1',
+                200: '#EFECE6',
+                300: '#E4DFD5'
+              },
+              gold: {
+                500: '#E3A72F'
+              },
+              emeraldCustom: {
+                600: '#159A70'
+              }
             }
           }
         }
       }
     </script>
   </head>
-  <body class="bg-[#FAF8F5] text-[#171717] antialiased">
+  <body class="bg-[#F7F5F1] text-[#151A2B] antialiased selection:bg-[#B93434] selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

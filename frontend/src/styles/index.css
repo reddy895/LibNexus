@@ -4,38 +4,44 @@
 
 @layer base {
   body {
-    background-color: #FAF8F5;
-    color: #171717;
-    font-family: 'Inter', sans-serif;
+    background-color: #F7F5F1;
+    color: #151A2B;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
-/* Custom Library Aesthetic Utilities */
-.bg-cream {
-  background-color: #FAF8F5;
+/* Custom Editorial Styling Utilities */
+.font-heading {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
 }
 
-.bg-charcoal {
-  background-color: #0F172A;
+.border-editorial {
+  border-color: #E4DFD5;
 }
 
-.bg-burgundy {
-  background-color: #9F2D2D;
+.shadow-sharp {
+  box-shadow: 4px 4px 0px 0px #151A2B;
 }
 
-.text-burgundy {
-  color: #9F2D2D;
+.shadow-sharp-subtle {
+  box-shadow: 2px 2px 0px 0px rgba(21, 26, 43, 0.15);
 }
 
-.border-subtle {
-  border-color: #E2E8F0;
+.shadow-sharp-crimson {
+  box-shadow: 4px 4px 0px 0px #B93434;
 }
 
 .card-hover {
-  transition: all 0.25s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 24px -6px rgba(21, 26, 43, 0.08);
+}
+
+/* Progress bar transitions */
+.progress-bar-fill {
+  transition: width 0.5s ease-in-out;
 }
