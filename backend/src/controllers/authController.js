@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const dataService = require('../services/dataService');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => {
@@ -20,7 +20,7 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    const userExists = await User.findOne({ email });
+    const userExists = await dataService.findUserByEmail(email);
     if (userExists) {
       return res.status(400).json({
         success: false,
@@ -28,7 +28,7 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    const user = await User.create({
+    const user = await dataService.createUser({
       name,
       email,
       password,
@@ -66,7 +66,7 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await dataService.findUserByEmail(email);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -74,7 +74,7 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    const isMatch = await user.matchPassword(password);
+    const isMatch = typeof user.matchPassword === 'function' ? await user.matchPassword(password) : false;
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -104,7 +104,7 @@ exports.login = async (req, res, next) => {
 // @route   GET /api/auth/me
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await dataService.findUserById(req.user._id);
     res.status(200).json({
       success: true,
       data: user
@@ -113,3 +113,4 @@ exports.getMe = async (req, res, next) => {
     next(error);
   }
 };
+
