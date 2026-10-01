@@ -1,41 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import libraryService from '../services/libraryService';
-import adminService from '../services/adminService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { Building2, Plus, Edit2, Trash2, MapPin, X, Check } from 'lucide-react';
+import { Library, Plus, Edit3, Trash2, MapPin, Clock, Phone, Mail, X } from 'lucide-react';
 
 const AdminLibrariesPage = () => {
   const [libraries, setLibraries] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingLib, setEditingLib] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    city: '',
-    latitude: 40.758,
-    longitude: -73.9855,
-    operatingHours: '08:00 AM - 10:00 PM',
-    phone: '',
-    email: '',
-    totalSeats: 36,
-    description: '',
-    image: '',
-    amenities: 'WiFi, AC, Power Outlets, Quiet Zone'
-  });
+  // Form State
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('Bengaluru');
+  const [latitude, setLatitude] = useState('12.9716');
+  const [longitude, setLongitude] = useState('77.5946');
+  const [openingTime, setOpeningTime] = useState('08:00 AM');
+  const [closingTime, setClosingTime] = useState('10:00 PM');
+  const [totalSeats, setTotalSeats] = useState('180');
+  const [occupiedSeats, setOccupiedSeats] = useState('56');
+  const [status, setStatus] = useState('open');
+  const [image, setImage] = useState('');
+  const [description, setDescription] = useState('');
 
   const fetchLibraries = async () => {
     setLoading(true);
-    setError(null);
     try {
       const data = await libraryService.getLibraries();
-      setLibraries(data.libraries || data);
+      const list = Array.isArray(data) ? data : data.data || [];
+      setLibraries(list);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch libraries');
+      setError(err.message || 'Failed to load libraries');
     } finally {
       setLoading(false);
     }
@@ -45,283 +42,241 @@ const AdminLibrariesPage = () => {
     fetchLibraries();
   }, []);
 
-  const openCreateModal = () => {
-    setEditingLib(null);
-    setFormData({
-      name: '',
-      address: '',
-      city: 'New York',
-      latitude: 40.758,
-      longitude: -73.9855,
-      operatingHours: '08:00 AM - 10:00 PM',
-      phone: '+1 (555) 000-0000',
-      email: 'contact@library.org',
-      totalSeats: 36,
-      description: 'Modern public library with study quiet zones and high speed wifi.',
-      image: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80',
-      amenities: 'WiFi, AC, Power Outlets, Quiet Zone'
-    });
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (lib) => {
-    setEditingLib(lib);
-    setFormData({
-      name: lib.name || '',
-      address: lib.address || '',
-      city: lib.city || 'New York',
-      latitude: lib.latitude || 40.758,
-      longitude: lib.longitude || -73.9855,
-      operatingHours: lib.operatingHours || '08:00 AM - 10:00 PM',
-      phone: lib.phone || '',
-      email: lib.email || '',
-      totalSeats: lib.totalSeats || 36,
-      description: lib.description || '',
-      image: lib.image || '',
-      amenities: lib.amenities ? lib.amenities.join(', ') : 'WiFi, AC, Power Outlets'
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleCreateLibrary = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      const payload = {
-        ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude),
-        totalSeats: parseInt(formData.totalSeats, 10),
-        amenities: typeof formData.amenities === 'string' ? formData.amenities.split(',').map((a) => a.trim()) : formData.amenities
-      };
+      await libraryService.createLibrary({
+        name,
+        address,
+        city,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        openingTime,
+        closingTime,
+        totalSeats: parseInt(totalSeats, 10),
+        occupiedSeats: parseInt(occupiedSeats, 10),
+        status,
+        image,
+        description
+      });
 
-      if (editingLib) {
-        await adminService.updateLibrary(editingLib._id, payload);
-      } else {
-        await adminService.createLibrary(payload);
-      }
-
-      setIsModalOpen(false);
-      fetchLibraries();
+      setShowAddModal(false);
+      await fetchLibraries();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save library');
+      setError(err.message || 'Failed to create library');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this library location? All associated seats will be removed.')) return;
-    try {
-      await adminService.deleteLibrary(id);
-      fetchLibraries();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete library');
+  const handleDeleteLibrary = async (id) => {
+    if (window.confirm('Deactivating/Deleting this library will remove it from public discovery. Proceed?')) {
+      try {
+        await libraryService.deleteLibrary(id);
+        await fetchLibraries();
+      } catch (err) {
+        setError(err.message || 'Failed to delete library');
+      }
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+    <div className="space-y-8">
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1E253B] border border-slate-800 p-6 rounded-2xl">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-purple-400" />
-            Library Locations Management
-          </h1>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#B93434]">Network Hubs</span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white font-heading">Library Network Registry</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Create, inspect, and update partner library locations in the network.
+            Configure library metadata, geographic coordinates, opening hours, and default seat capacities.
           </p>
         </div>
 
         <button
-          onClick={openCreateModal}
-          className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs rounded-xl transition-all shadow-md flex items-center gap-2 self-start sm:self-auto"
+          onClick={() => setShowAddModal(true)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-black uppercase tracking-wider rounded-lg shadow-sharp-crimson transition-transform active:translate-y-0.5"
         >
-          <Plus className="w-4 h-4" /> Add New Library
+          <Plus className="w-4 h-4" /> ADD NEW LIBRARY →
         </button>
       </div>
 
-      {error && <ErrorMessage message={error} onRetry={fetchLibraries} />}
+      {error && <ErrorMessage message={error} />}
 
-      {loading ? (
-        <LoadingSpinner message="Fetching library records..." />
-      ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-800/80 text-slate-400 uppercase text-[10px]">
-                <tr>
-                  <th className="p-4">Library Name</th>
-                  <th className="p-4">City</th>
-                  <th className="p-4">Address</th>
-                  <th className="p-4">Total Seats</th>
-                  <th className="p-4">Available Seats</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {libraries.map((lib) => (
-                  <tr key={lib._id} className="hover:bg-slate-800/40">
-                    <td className="p-4 font-bold text-white flex items-center gap-3">
-                      <img
-                        src={lib.image || 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=100&q=80'}
-                        alt=""
-                        className="w-8 h-8 rounded-lg object-cover"
-                      />
-                      {lib.name}
-                    </td>
-                    <td className="p-4 text-slate-300 font-semibold">{lib.city}</td>
-                    <td className="p-4 text-slate-400 flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-indigo-400 shrink-0" />
-                      {lib.address}
-                    </td>
-                    <td className="p-4 font-bold text-slate-200">{lib.totalSeats}</td>
-                    <td className="p-4 font-bold text-emerald-400">{lib.availableSeats}</td>
-                    <td className="p-4 text-right space-x-2">
-                      <button
-                        onClick={() => openEditModal(lib)}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-lg transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(lib._id)}
-                        className="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-4 my-8">
+      {/* Add Library Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#1E253B] border-2 border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl my-8">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-lg font-bold text-white">
-                {editingLib ? 'Edit Library Location' : 'Add New Partner Library'}
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white"
-              >
+              <h2 className="text-lg font-black text-white uppercase tracking-wider">REGISTER NEW PUBLIC LIBRARY</h2>
+              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleCreateLibrary} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-300 font-medium mb-1">Library Name</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Library Name *</label>
                   <input
                     type="text"
                     required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Indiranagar Knowledge Hub"
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-slate-300 font-medium mb-1">City</label>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Address *</label>
                   <input
                     type="text"
                     required
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. 100 Feet Road, Indiranagar"
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Latitude</label>
+                  <input
+                    type="text"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Longitude</label>
+                  <input
+                    type="text"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Opening Time</label>
+                  <input
+                    type="text"
+                    value={openingTime}
+                    onChange={(e) => setOpeningTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Closing Time</label>
+                  <input
+                    type="text"
+                    value={closingTime}
+                    onChange={(e) => setClosingTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Total Seats</label>
+                  <input
+                    type="number"
+                    value={totalSeats}
+                    onChange={(e) => setTotalSeats(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Occupied Seats</label>
+                  <input
+                    type="number"
+                    value={occupiedSeats}
+                    onChange={(e) => setOccupiedSeats(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Address</label>
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Image URL</label>
                 <input
                   type="text"
-                  required
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-medium mb-1">Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    required
-                    value={formData.latitude}
-                    onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-medium mb-1">Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    required
-                    value={formData.longitude}
-                    onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-medium mb-1">Total Seats</label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.totalSeats}
-                    onChange={(e) => setFormData({ ...formData, totalSeats: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-medium mb-1">Image URL</label>
-                <input
-                  type="url"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-medium mb-1">Amenities (comma separated)</label>
-                <input
-                  type="text"
-                  value={formData.amenities}
-                  onChange={(e) => setFormData({ ...formData, amenities: e.target.value })}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-white"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold uppercase rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold"
+                  disabled={submitting}
+                  className="px-6 py-2 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-black uppercase rounded"
                 >
-                  {editingLib ? 'Update Library' : 'Create Library'}
+                  {submitting ? 'Saving...' : 'CREATE LIBRARY'}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {loading ? (
+        <LoadingSpinner message="Loading library registry..." />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {libraries.map((lib) => (
+            <div key={lib._id} className="bg-[#1E253B] border border-slate-800 rounded-2xl p-5 space-y-4 shadow-sharp-subtle flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-[#159A70] text-white">
+                    {lib.status || 'OPEN'}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">ID: {lib._id.slice(-6)}</span>
+                </div>
+
+                <h3 className="font-extrabold text-lg text-white">{lib.name}</h3>
+                <p className="text-xs text-slate-400 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#B93434]" /> {lib.address}
+                </p>
+
+                <div className="bg-[#151A2B] p-3 rounded-lg border border-slate-800 text-xs space-y-1">
+                  <div className="flex justify-between text-slate-300 font-bold">
+                    <span>Seats:</span>
+                    <span className="text-[#159A70]">{lib.availableSeats || 0} Available / {lib.totalSeats || 180} Total</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400 text-[11px]">
+                    <span>Operating Hours:</span>
+                    <span>{lib.openingTime} - {lib.closingTime}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  onClick={() => handleDeleteLibrary(lib._id)}
+                  className="p-2 bg-[#B93434]/20 hover:bg-[#B93434] text-[#B93434] hover:text-white rounded text-xs font-bold transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
     </div>
   );
 };

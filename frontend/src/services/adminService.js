@@ -3,57 +3,27 @@ import api from './api';
 const adminService = {
   getStats: async () => {
     const response = await api.get('/admin/stats');
-    return response.data;
+    return response.data || response;
   },
 
-  getAllBookings: async () => {
-    const response = await api.get('/admin/bookings');
-    return response.data;
-  },
-
-  getAllUsers: async () => {
+  getUsers: async () => {
     const response = await api.get('/admin/users');
-    return response.data;
+    return response.data || response;
   },
 
-  updateUserRole: async (userId, data) => {
-    const response = await api.put(`/admin/users/${userId}/role`, data);
-    return response.data;
+  updateUserRole: async (id, role) => {
+    const response = await api.put(`/admin/users/${id}/role`, { role });
+    return response.data || response;
   },
 
-  createLibrary: async (data) => {
-    const response = await api.post('/admin/libraries', data);
-    return response.data;
+  updateSeats: async (libraryId, occupiedSeats, totalSeats) => {
+    const response = await api.patch(`/admin/libraries/${libraryId}/seats`, { occupiedSeats, totalSeats });
+    return response.data || response;
   },
 
-  updateLibrary: async (id, data) => {
-    const response = await api.put(`/admin/libraries/${id}`, data);
-    return response.data;
-  },
-
-  deleteLibrary: async (id) => {
-    const response = await api.delete(`/admin/libraries/${id}`);
-    return response.data;
-  },
-
-  createBook: async (data) => {
-    const response = await api.post('/admin/books', data);
-    return response.data;
-  },
-
-  updateBook: async (id, data) => {
-    const response = await api.put(`/admin/books/${id}`, data);
-    return response.data;
-  },
-
-  deleteBook: async (id) => {
-    const response = await api.delete(`/admin/books/${id}`);
-    return response.data;
-  },
-
-  updateSeatStatus: async (seatId, data) => {
-    const response = await api.put(`/admin/seats/${seatId}/status`, data);
-    return response.data;
+  getActivityLogs: async () => {
+    const response = await api.get('/admin/activity');
+    return response.data || response;
   }
 };
 
