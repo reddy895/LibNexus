@@ -41,10 +41,8 @@ const AdminLayout = () => {
         <div>
           {/* Brand Header */}
           <div className="p-6 border-b border-[#143F40] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded bg-[#D6FFCB] text-[#042F32] flex items-center justify-center font-black text-sm shadow-sharp-mint">
-                LN
-              </div>
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="LibNexus Logo" className="w-9 h-9 object-contain" />
               <div>
                 <span className="text-lg font-black tracking-tight text-white uppercase font-heading">
                   LIB<span className="text-[#D6FFCB]">ADMIN</span>
