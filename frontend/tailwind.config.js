@@ -7,31 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        navy: {
-          900: '#151A2B',
-          800: '#1E253B',
-          700: '#2A334E',
-          600: '#384466'
+        carbon: {
+          DEFAULT: '#042F32',
+          900: '#042F32',
+          800: '#0A3B3E',
+          700: '#143F40',
+          600: '#1B4F51'
         },
-        crimson: {
-          600: '#B93434',
-          700: '#9B2A2A',
-          800: '#7E2121'
+        mint: {
+          DEFAULT: '#D6FFCB',
+          400: '#E4FFDB',
+          500: '#D6FFCB',
+          600: '#BAF7AB',
+          700: '#9CEE88'
         },
-        cream: {
-          50: '#FAF8F5',
-          100: '#F7F5F1',
-          200: '#EFECE6',
-          300: '#E4DFD5'
+        ivory: {
+          DEFAULT: '#F7FAF5',
+          50: '#FFFFFF',
+          100: '#F7FAF5',
+          200: '#EEF4EC',
+          300: '#DFE8DC'
         },
-        gold: {
-          500: '#E3A72F',
-          600: '#C79024'
-        },
-        emeraldCustom: {
-          600: '#159A70',
-          700: '#107B59'
-        }
+        mutedTeal: '#143F40',
+        secondaryText: '#B6C8C5'
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif']
@@ -40,3 +38,4 @@ export default {
   },
   plugins: []
 };
+

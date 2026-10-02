@@ -5,15 +5,11 @@ import libraryService from '../services/libraryService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import {
-  Library,
   BookOpen,
   Armchair,
   CheckCircle2,
   AlertCircle,
-  TrendingUp,
   Sparkles,
-  History,
-  ArrowRight,
   Edit3
 } from 'lucide-react';
 
@@ -52,72 +48,72 @@ const AdminDashboardPage = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 bg-[#F7FAF5]">
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1E253B] border border-slate-800 p-6 rounded-2xl">
+      {/* Page Header: Carbon Teal Container */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#042F32] text-white p-6 rounded-2xl border-2 border-[#042F32] shadow-sharp">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#E3A72F]">Overview Panel</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#D6FFCB]">Overview Panel</span>
           <h1 className="text-2xl sm:text-3xl font-black text-white font-heading">Library System Dashboard</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[#B6C8C5] mt-1">
             Real-time occupancy monitoring, catalog metrics, and administrative logs.
           </p>
         </div>
 
         <Link
           to="/admin/seats"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-black uppercase tracking-wider rounded-lg shadow-sharp-crimson transition-transform active:translate-y-0.5"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#D6FFCB] hover:bg-[#BAF7AB] text-[#042F32] text-xs font-black uppercase tracking-wider rounded-lg shadow-sharp-mint transition-transform active:translate-y-0.5 font-heading"
         >
-          <Armchair className="w-4 h-4" /> UPDATE SEAT OCCUPANCY →
+          <Armchair className="w-4 h-4 text-[#042F32]" /> UPDATE SEAT OCCUPANCY →
         </Link>
       </div>
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
-        <div className="bg-[#1E253B] border border-slate-800 p-5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-black uppercase tracking-wider">Total Seats</span>
-            <Armchair className="w-4 h-4 text-slate-300" />
+        <div className="bg-white border-2 border-[#042F32] p-5 rounded-xl space-y-2 shadow-sharp-subtle">
+          <div className="flex items-center justify-between text-[#143F40]">
+            <span className="text-[10px] font-black uppercase tracking-wider font-heading">Total Seats</span>
+            <Armchair className="w-4 h-4 text-[#042F32]" />
           </div>
-          <p className="text-3xl font-black text-white">{stats?.totalSeats || 970}</p>
-          <p className="text-[11px] text-slate-400">Configured in system</p>
+          <p className="text-3xl font-black text-[#042F32]">{stats?.totalSeats || 970}</p>
+          <p className="text-[11px] text-[#143F40]/70">Configured in system</p>
         </div>
 
-        <div className="bg-[#1E253B] border border-slate-800 p-5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-[#B93434]">
-            <span className="text-[10px] font-black uppercase tracking-wider">Occupied Seats</span>
+        <div className="bg-white border-2 border-[#042F32] p-5 rounded-xl space-y-2 shadow-sharp-subtle">
+          <div className="flex items-center justify-between text-rose-600">
+            <span className="text-[10px] font-black uppercase tracking-wider font-heading">Occupied Seats</span>
             <AlertCircle className="w-4 h-4" />
           </div>
-          <p className="text-3xl font-black text-[#B93434]">{stats?.occupiedSeats || 541}</p>
-          <p className="text-[11px] text-slate-400">{stats?.occupancyPercentage || 56}% occupied</p>
+          <p className="text-3xl font-black text-rose-600">{stats?.occupiedSeats || 541}</p>
+          <p className="text-[11px] text-[#143F40]/70">{stats?.occupancyPercentage || 56}% occupied</p>
         </div>
 
-        <div className="bg-[#1E253B] border border-slate-800 p-5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-[#159A70]">
-            <span className="text-[10px] font-black uppercase tracking-wider">Available Seats</span>
+        <div className="bg-white border-2 border-[#042F32] p-5 rounded-xl space-y-2 shadow-sharp-subtle">
+          <div className="flex items-center justify-between text-[#10B981]">
+            <span className="text-[10px] font-black uppercase tracking-wider font-heading">Available Seats</span>
             <CheckCircle2 className="w-4 h-4" />
           </div>
-          <p className="text-3xl font-black text-[#159A70]">{stats?.availableSeats || 429}</p>
-          <p className="text-[11px] text-slate-400">Ready for walk-in</p>
+          <p className="text-3xl font-black text-[#10B981]">{stats?.availableSeats || 429}</p>
+          <p className="text-[11px] text-[#143F40]/70">Ready for walk-in</p>
         </div>
 
-        <div className="bg-[#1E253B] border border-slate-800 p-5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-[#E3A72F]">
-            <span className="text-[10px] font-black uppercase tracking-wider">Catalog Books</span>
+        <div className="bg-white border-2 border-[#042F32] p-5 rounded-xl space-y-2 shadow-sharp-subtle">
+          <div className="flex items-center justify-between text-[#042F32]">
+            <span className="text-[10px] font-black uppercase tracking-wider font-heading">Catalog Books</span>
             <BookOpen className="w-4 h-4" />
           </div>
-          <p className="text-3xl font-black text-white">{stats?.totalBooks ? stats.totalBooks.toLocaleString() : '135,550'}</p>
-          <p className="text-[11px] text-slate-400">Physical volumes</p>
+          <p className="text-3xl font-black text-[#042F32]">{stats?.totalBooks ? stats.totalBooks.toLocaleString() : '135,550'}</p>
+          <p className="text-[11px] text-[#143F40]/70">Physical volumes</p>
         </div>
 
-        <div className="bg-[#1E253B] border border-slate-800 p-5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-amber-400">
-            <span className="text-[10px] font-black uppercase tracking-wider">New Arrivals</span>
-            <Sparkles className="w-4 h-4" />
+        <div className="bg-white border-2 border-[#042F32] p-5 rounded-xl space-y-2 shadow-sharp-subtle">
+          <div className="flex items-center justify-between text-[#042F32]">
+            <span className="text-[10px] font-black uppercase tracking-wider font-heading">New Arrivals</span>
+            <Sparkles className="w-4 h-4 text-[#042F32]" />
           </div>
-          <p className="text-3xl font-black text-amber-400">{stats?.newArrivalsCount || 12}</p>
-          <p className="text-[11px] text-slate-400">Highlighted additions</p>
+          <p className="text-3xl font-black text-[#042F32]">{stats?.newArrivalsCount || 12}</p>
+          <p className="text-[11px] text-[#143F40]/70">Highlighted additions</p>
         </div>
 
       </div>
@@ -126,20 +122,20 @@ const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         {/* Live Seat Status per Library */}
-        <div className="lg:col-span-8 bg-[#1E253B] border border-slate-800 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="lg:col-span-8 bg-white border-2 border-[#042F32] rounded-2xl p-6 space-y-4 shadow-sharp">
+          <div className="flex items-center justify-between border-b border-[#DFE8DC] pb-3">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#B93434]">Real-Time Control</span>
-              <h2 className="text-lg font-black text-white">Live Seat Status By Library</h2>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#143F40]">Real-Time Control</span>
+              <h2 className="text-lg font-black text-[#042F32] font-heading">Live Seat Status By Library</h2>
             </div>
-            <Link to="/admin/seats" className="text-xs font-black text-[#E3A72F] hover:underline uppercase tracking-wider">
+            <Link to="/admin/seats" className="text-xs font-black text-[#042F32] hover:underline uppercase tracking-wider font-heading">
               Manage All Seats →
             </Link>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-[#151A2B] text-slate-400 uppercase text-[10px] font-bold">
+            <table className="w-full text-left text-xs text-[#042F32]">
+              <thead className="bg-[#042F32] text-white uppercase text-[10px] font-bold font-heading">
                 <tr>
                   <th className="p-3 rounded-l">Library Name</th>
                   <th className="p-3">Total</th>
@@ -149,7 +145,7 @@ const AdminDashboardPage = () => {
                   <th className="p-3 rounded-r text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 font-medium">
+              <tbody className="divide-y divide-[#DFE8DC] font-medium">
                 {libraries.map((lib) => {
                   const total = lib.totalSeats || 180;
                   const occupied = lib.occupiedSeats ?? 56;
@@ -157,25 +153,25 @@ const AdminDashboardPage = () => {
                   const pct = total > 0 ? Math.round((occupied / total) * 100) : 0;
 
                   return (
-                    <tr key={lib._id} className="hover:bg-slate-800/60 transition-colors">
-                      <td className="p-3 font-bold text-white">{lib.name}</td>
-                      <td className="p-3 text-slate-400">{total}</td>
-                      <td className="p-3 text-[#B93434] font-bold">{occupied}</td>
-                      <td className="p-3 text-[#159A70] font-bold">{available}</td>
+                    <tr key={lib._id} className="hover:bg-[#F7FAF5] transition-colors">
+                      <td className="p-3 font-bold text-[#042F32]">{lib.name}</td>
+                      <td className="p-3 text-[#143F40]">{total}</td>
+                      <td className="p-3 text-rose-600 font-bold">{occupied}</td>
+                      <td className="p-3 text-[#10B981] font-bold">{available}</td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                            <div className={`h-full ${pct > 80 ? 'bg-[#B93434]' : pct > 50 ? 'bg-[#E3A72F]' : 'bg-[#159A70]'}`} style={{ width: `${pct}%` }} />
+                          <div className="w-16 h-1.5 bg-[#EEF4EC] rounded-full overflow-hidden border border-[#DFE8DC]">
+                            <div className={`h-full ${pct > 80 ? 'bg-rose-500' : pct > 50 ? 'bg-amber-500' : 'bg-[#10B981]'}`} style={{ width: `${pct}%` }} />
                           </div>
-                          <span className="text-[10px] font-bold">{pct}%</span>
+                          <span className="text-[10px] font-bold text-[#042F32]">{pct}%</span>
                         </div>
                       </td>
                       <td className="p-3 text-right">
                         <Link
                           to="/admin/seats"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-[#B93434] text-white text-[10px] font-bold uppercase rounded border border-slate-700 transition-colors"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D6FFCB] hover:bg-[#BAF7AB] text-[#042F32] text-[10px] font-black uppercase rounded border border-[#BAF7AB] transition-colors font-heading"
                         >
-                          <Edit3 className="w-3 h-3" /> Update
+                          <Edit3 className="w-3 h-3 text-[#042F32]" /> Update
                         </Link>
                       </td>
                     </tr>
@@ -187,29 +183,29 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Recent Activity Log */}
-        <div className="lg:col-span-4 bg-[#1E253B] border border-slate-800 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="lg:col-span-4 bg-white border-2 border-[#042F32] rounded-2xl p-6 space-y-4 shadow-sharp">
+          <div className="flex items-center justify-between border-b border-[#DFE8DC] pb-3">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#E3A72F]">Audit Trail</span>
-              <h2 className="text-lg font-black text-white">Recent Activity</h2>
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#143F40]">Audit Trail</span>
+              <h2 className="text-lg font-black text-[#042F32] font-heading">Recent Activity</h2>
             </div>
-            <Link to="/admin/activity" className="text-xs font-bold text-[#E3A72F] hover:underline uppercase">
+            <Link to="/admin/activity" className="text-xs font-black text-[#042F32] hover:underline uppercase font-heading">
               Full Log →
             </Link>
           </div>
 
           <div className="space-y-3">
             {activities.length === 0 ? (
-              <p className="text-xs text-slate-500 py-4 italic text-center">No recent activity logged.</p>
+              <p className="text-xs text-[#143F40]/70 py-4 italic text-center">No recent activity logged.</p>
             ) : (
               activities.map((act) => (
-                <div key={act._id} className="p-3 bg-[#151A2B] rounded-xl border border-slate-800 space-y-1">
+                <div key={act._id} className="p-3 bg-[#F7FAF5] rounded-xl border border-[#DFE8DC] space-y-1">
                   <div className="flex items-center justify-between text-[10px] font-bold">
-                    <span className="text-[#B93434] uppercase tracking-wider">{act.action}</span>
-                    <span className="text-slate-500">{new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-[#042F32] uppercase tracking-wider font-heading">{act.action}</span>
+                    <span className="text-[#143F40]/70">{new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <p className="text-xs text-white font-medium">{act.details}</p>
-                  <p className="text-[10px] text-slate-400">By {act.user}</p>
+                  <p className="text-xs text-[#042F32] font-medium">{act.details}</p>
+                  <p className="text-[10px] text-[#143F40]/70">By {act.user}</p>
                 </div>
               ))
             )}
@@ -223,3 +219,4 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
+

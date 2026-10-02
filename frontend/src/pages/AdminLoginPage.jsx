@@ -32,80 +32,80 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#151A2B] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#1E253B] border-2 border-slate-700 rounded-2xl p-8 shadow-sharp-crimson space-y-6">
+    <div className="min-h-screen bg-[#042F32] flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-[#143F40] border-2 border-[#1B4F51] rounded-2xl p-8 shadow-sharp-mint space-y-6">
 
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-[#B93434] text-white flex items-center justify-center mx-auto shadow-sharp-subtle">
-            <Shield className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-[#D6FFCB] text-[#042F32] flex items-center justify-center mx-auto shadow-sharp-mint">
+            <Shield className="w-6 h-6 text-[#042F32]" />
           </div>
           <h1 className="text-2xl font-black text-white uppercase tracking-wider font-heading">
-            LIB<span className="text-[#B93434]">NEXUS</span> ADMIN
+            LIB<span className="text-[#D6FFCB]">ADMIN</span> PORTAL
           </h1>
-          <p className="text-xs text-slate-400 font-medium">
+          <p className="text-xs text-[#B6C8C5] font-medium">
             Authorized Library Staff & Administration Management Portal
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-[#B93434]/20 border border-[#B93434] rounded-lg text-xs text-rose-200 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-[#B93434]" /> {error}
+          <div className="p-3 bg-rose-900/40 border border-rose-500 rounded-lg text-xs text-rose-200 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" /> {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+            <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1 tracking-wider">
               Administrator Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-[#B6C8C5] absolute left-3 top-3" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@libnexus.com"
-                className="w-full pl-9 pr-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#E3A72F]"
+                className="w-full pl-9 pr-3 py-2 bg-[#042F32] border border-[#1B4F51] rounded-lg text-xs text-white placeholder-[#B6C8C5] focus:outline-none focus:border-[#D6FFCB]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+            <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1 tracking-wider">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-[#B6C8C5] absolute left-3 top-3" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#E3A72F]"
+                className="w-full pl-9 pr-3 py-2 bg-[#042F32] border border-[#1B4F51] rounded-lg text-xs text-white placeholder-[#B6C8C5] focus:outline-none focus:border-[#D6FFCB]"
               />
             </div>
           </div>
 
-          <div className="bg-[#151A2B] p-3 rounded-lg border border-slate-800 text-[11px] text-slate-400 space-y-1">
-            <p className="font-bold text-slate-300">Demo Admin Account:</p>
-            <p className="font-mono text-amber-400">admin@libnexus.com | Admin@123</p>
+          <div className="bg-[#042F32] p-3 rounded-lg border border-[#1B4F51] text-[11px] text-[#B6C8C5] space-y-1">
+            <p className="font-bold text-white">Demo Admin Account:</p>
+            <p className="font-mono text-[#D6FFCB]">admin@libnexus.com | Admin@123</p>
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-[#B93434] hover:bg-[#9B2A2A] text-white font-black text-xs uppercase tracking-wider rounded-lg shadow-sharp-crimson transition-transform active:translate-y-0.5 disabled:opacity-50"
+            className="w-full py-3 bg-[#D6FFCB] hover:bg-[#BAF7AB] text-[#042F32] font-black text-xs uppercase tracking-wider rounded-lg shadow-sharp-mint transition-transform active:translate-y-0.5 disabled:opacity-50 font-heading"
           >
             {submitting ? 'Authenticating...' : 'SIGN IN TO ADMIN PORTAL →'}
           </button>
         </form>
 
-        <div className="text-center pt-2 border-t border-slate-800">
+        <div className="text-center pt-2 border-t border-[#1B4F51]">
           <button
             onClick={() => navigate('/')}
-            className="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center justify-center gap-1 mx-auto"
+            className="text-xs font-bold text-[#B6C8C5] hover:text-white uppercase tracking-wider flex items-center justify-center gap-1 mx-auto"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Return to Public Website
           </button>
@@ -117,3 +117,4 @@ const AdminLoginPage = () => {
 };
 
 export default AdminLoginPage;
+

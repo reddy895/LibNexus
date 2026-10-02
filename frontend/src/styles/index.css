@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    background-color: #F7F5F1;
-    color: #151A2B;
+    background-color: #F7FAF5;
+    color: #042F32;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
@@ -17,19 +17,19 @@
 }
 
 .border-editorial {
-  border-color: #E4DFD5;
+  border-color: #DFE8DC;
 }
 
 .shadow-sharp {
-  box-shadow: 4px 4px 0px 0px #151A2B;
+  box-shadow: 4px 4px 0px 0px #042F32;
 }
 
 .shadow-sharp-subtle {
-  box-shadow: 2px 2px 0px 0px rgba(21, 26, 43, 0.15);
+  box-shadow: 2px 2px 0px 0px rgba(4, 47, 50, 0.15);
 }
 
-.shadow-sharp-crimson {
-  box-shadow: 4px 4px 0px 0px #B93434;
+.shadow-sharp-mint {
+  box-shadow: 4px 4px 0px 0px #D6FFCB;
 }
 
 .card-hover {
@@ -38,10 +38,11 @@
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px -6px rgba(21, 26, 43, 0.08);
+  box-shadow: 0 12px 24px -6px rgba(4, 47, 50, 0.1);
 }
 
 /* Progress bar transitions */
 .progress-bar-fill {
   transition: width 0.5s ease-in-out;
 }
+

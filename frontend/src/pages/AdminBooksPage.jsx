@@ -115,18 +115,18 @@ const AdminBooksPage = () => {
     <div className="space-y-8">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1E253B] border border-slate-800 p-6 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#042F32] border border-[#143F40] p-6 rounded-2xl shadow-sharp">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#E3A72F]">Catalog Administration</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#D6FFCB]">Catalog Administration</span>
           <h1 className="text-2xl sm:text-3xl font-black text-white font-heading">Book Catalog Management</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-[#B6C8C5] mt-1">
             Add physical books, assign to libraries, manage inventory, and highlight new arrivals.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-black uppercase tracking-wider rounded-lg shadow-sharp-crimson transition-transform active:translate-y-0.5"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-[#D6FFCB] hover:bg-[#bbf4ae] text-[#042F32] text-xs font-black uppercase tracking-wider rounded-xl shadow-sharp-mint transition-transform active:translate-y-0.5"
         >
           <Plus className="w-4 h-4" /> ADD NEW BOOK →
         </button>
@@ -136,11 +136,11 @@ const AdminBooksPage = () => {
 
       {/* Add Book Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#1E253B] border-2 border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl my-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 className="text-lg font-black text-white uppercase tracking-wider">ADD NEW BOOK TO CATALOG</h2>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 bg-[#042F32]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#042F32] border-2 border-[#143F40] rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl my-8 text-white">
+            <div className="flex items-center justify-between border-b border-[#143F40] pb-3">
+              <h2 className="text-lg font-black text-white uppercase tracking-wider font-heading">ADD NEW BOOK TO CATALOG</h2>
+              <button onClick={() => setShowAddModal(false)} className="text-[#B6C8C5] hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -148,46 +148,46 @@ const AdminBooksPage = () => {
             <form onSubmit={handleCreateBook} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Book Title *</label>
+                  <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Book Title *</label>
                   <input
                     type="text"
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Designing Data-Intensive Applications"
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#D6FFCB]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Author *</label>
+                  <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Author *</label>
                   <input
                     type="text"
                     required
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     placeholder="e.g. Martin Kleppmann"
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#D6FFCB]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">ISBN Number</label>
+                  <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">ISBN Number</label>
                   <input
                     type="text"
                     value={isbn}
                     onChange={(e) => setIsbn(e.target.value)}
                     placeholder="e.g. 978-1449373320"
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#D6FFCB]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Category</label>
+                  <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white focus:outline-none focus:border-[#D6FFCB]"
                   >
                     <option value="Programming">Programming</option>
                     <option value="Artificial Intelligence">Artificial Intelligence</option>
@@ -200,12 +200,12 @@ const AdminBooksPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-[#E3A72F] uppercase mb-1">Assign Library *</label>
+                  <label className="block text-xs font-bold text-[#D6FFCB] uppercase mb-1">Assign Library *</label>
                   <select
                     required
                     value={libraryId}
                     onChange={(e) => setLibraryId(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white focus:outline-none focus:border-[#D6FFCB]"
                   >
                     {libraries.map((lib) => (
                       <option key={lib._id} value={lib._id}>{lib.name}</option>
@@ -214,61 +214,61 @@ const AdminBooksPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Total Copies Quantity</label>
+                  <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Total Copies Quantity</label>
                   <input
                     type="number"
                     min="1"
                     value={totalCopies}
                     onChange={(e) => setTotalCopies(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                    className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white focus:outline-none focus:border-[#D6FFCB]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Cover Image URL</label>
+                <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Cover Image URL</label>
                 <input
                   type="text"
                   value={coverImage}
                   onChange={(e) => setCoverImage(e.target.value)}
                   placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                  className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#D6FFCB]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">Synopsis / Description</label>
+                <label className="block text-xs font-bold text-[#B6C8C5] uppercase mb-1">Synopsis / Description</label>
                 <textarea
                   rows="2"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief synopsis..."
-                  className="w-full px-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-[#E3A72F]"
+                  className="w-full px-3 py-2 bg-[#143F40] border border-[#143F40] rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#D6FFCB]"
                 />
               </div>
 
-              <label className="flex items-center gap-2 p-3 bg-[#151A2B] rounded-lg border border-slate-700 cursor-pointer">
+              <label className="flex items-center gap-2 p-3 bg-[#143F40] rounded-lg border border-teal-800/50 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isNewArrival}
                   onChange={(e) => setIsNewArrival(e.target.checked)}
-                  className="rounded text-[#B93434]"
+                  className="rounded text-[#042F32] accent-[#D6FFCB]"
                 />
-                <span className="text-xs font-bold text-[#E3A72F] uppercase">Mark as New Arrival Highlight</span>
+                <span className="text-xs font-bold text-[#D6FFCB] uppercase">Mark as New Arrival Highlight</span>
               </label>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+              <div className="flex justify-end gap-3 pt-3 border-t border-[#143F40]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold uppercase rounded"
+                  className="px-4 py-2 bg-[#143F40] hover:bg-teal-900 text-[#B6C8C5] text-xs font-bold uppercase rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-2 bg-[#B93434] hover:bg-[#9B2A2A] text-white text-xs font-black uppercase rounded shadow"
+                  className="px-6 py-2 bg-[#D6FFCB] hover:bg-[#bbf4ae] text-[#042F32] text-xs font-black uppercase rounded-lg shadow-sharp-mint transition-colors"
                 >
                   {submitting ? 'Adding...' : 'ADD BOOK'}
                 </button>
@@ -279,28 +279,28 @@ const AdminBooksPage = () => {
       )}
 
       {/* Search Bar */}
-      <div className="bg-[#1E253B] border border-slate-800 p-4 rounded-xl flex items-center justify-between gap-4">
+      <div className="bg-white border border-[#042F32]/10 p-4 rounded-xl flex items-center justify-between gap-4 shadow-sm">
         <div className="w-full sm:w-80 relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+          <Search className="w-4 h-4 text-[#042F32]/50 absolute left-3 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search catalog books..."
-            className="w-full pl-9 pr-3 py-2 bg-[#151A2B] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2 bg-[#F7FAF5] border border-[#042F32]/20 rounded-lg text-xs text-[#042F32] placeholder-[#042F32]/40 focus:outline-none focus:border-[#042F32]"
           />
         </div>
-        <span className="text-xs font-bold text-slate-400">{filteredBooks.length} Books Found</span>
+        <span className="text-xs font-bold text-[#042F32]/70">{filteredBooks.length} Books Found</span>
       </div>
 
       {/* Catalog Table */}
       {loading ? (
         <LoadingSpinner message="Loading catalog inventory..." />
       ) : (
-        <div className="bg-[#1E253B] border border-slate-800 rounded-2xl overflow-hidden shadow-sharp">
+        <div className="bg-white border border-[#042F32]/10 rounded-2xl overflow-hidden shadow-sharp">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-[#151A2B] text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+            <table className="w-full text-left text-xs text-[#042F32]">
+              <thead className="bg-[#042F32] text-[#B6C8C5] uppercase text-[10px] font-bold border-b border-[#143F40]">
                 <tr>
                   <th className="p-4">Book Title & Author</th>
                   <th className="p-4">Category</th>
@@ -310,29 +310,29 @@ const AdminBooksPage = () => {
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 font-medium">
+              <tbody className="divide-y divide-slate-100 font-medium">
                 {filteredBooks.map((book) => (
-                  <tr key={book._id} className="hover:bg-slate-800/60 transition-colors">
+                  <tr key={book._id} className="hover:bg-[#F7FAF5] transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <img src={book.coverImage} alt={book.title} className="w-10 h-12 object-cover rounded shadow shrink-0" />
                         <div>
-                          <p className="font-bold text-white leading-tight">{book.title}</p>
-                          <p className="text-[11px] text-slate-400">{book.author}</p>
-                          <p className="text-[10px] text-slate-500 font-mono">ISBN: {book.isbn}</p>
+                          <p className="font-bold text-[#042F32] leading-tight font-heading">{book.title}</p>
+                          <p className="text-[11px] text-[#042F32]/70">{book.author}</p>
+                          <p className="text-[10px] text-[#042F32]/50 font-mono">ISBN: {book.isbn}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-bold text-[#E3A72F]">{book.category}</td>
-                    <td className="p-4 text-slate-300">{book.library?.name || 'Central Library'}</td>
-                    <td className="p-4 text-slate-300 font-bold">{book.availableCopies} / {book.totalCopies}</td>
+                    <td className="p-4 font-bold text-[#042F32]">{book.category}</td>
+                    <td className="p-4 text-[#042F32]/80">{book.library?.name || 'Central Library'}</td>
+                    <td className="p-4 text-[#042F32] font-bold">{book.availableCopies} / {book.totalCopies}</td>
                     <td className="p-4">
                       <button
                         onClick={() => toggleNewArrival(book)}
-                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider ${
+                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-colors ${
                           book.isNewArrival
-                            ? 'bg-[#E3A72F] text-slate-900'
-                            : 'bg-slate-800 text-slate-500 border border-slate-700'
+                            ? 'bg-[#D6FFCB] text-[#042F32] shadow-sm'
+                            : 'bg-slate-100 text-slate-500 border border-slate-200'
                         }`}
                       >
                         {book.isNewArrival ? '★ NEW' : 'Regular'}
@@ -341,7 +341,7 @@ const AdminBooksPage = () => {
                     <td className="p-4 text-right space-x-2">
                       <button
                         onClick={() => handleDeleteBook(book._id)}
-                        className="p-1.5 bg-[#B93434]/20 hover:bg-[#B93434] text-[#B93434] hover:text-white rounded transition-colors"
+                        className="p-1.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 rounded transition-colors"
                         title="Delete Book"
                       >
                         <Trash2 className="w-4 h-4" />
